@@ -3,7 +3,9 @@
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useEffect, useState, useCallback } from 'react';
+import Lenis from 'lenis';
 
 const navItems = [
   { href: '/about', label: 'About' },
@@ -38,13 +40,22 @@ export default function Navigation() {
   // Nav should be compact if: not on home OR scrolled down on home
   const isCompact = !isHomePath || scrolled;
 
+  const scrollToTop = useCallback(() => {
+    const lenis = (window as unknown as { lenis: Lenis }).lenis;
+    if (lenis) {
+      lenis.scrollTo(0);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
   return (
     <motion.nav
       className="fixed z-50"
       initial={false}
       animate={{
         top: isCompact ? 24 : '50%',
-        left: isCompact ? 24 : 32,
+        left: isCompact ? 24 : 64,
         y: isCompact ? 0 : '-50%',
       }}
       transition={{
@@ -54,7 +65,7 @@ export default function Navigation() {
       style={{
         // Set initial position to avoid flash
         top: isCompact ? 24 : '50%',
-        left: isCompact ? 24 : 32,
+        left: isCompact ? 24 : 64,
       }}
     >
       <motion.div
@@ -65,13 +76,13 @@ export default function Navigation() {
           ease: [0.32, 0.72, 0, 1],
         }}
       >
-        {/* DS Logo - only shows when compact */}
+        {/* Logo - only shows when compact */}
         <motion.div
           initial={false}
           animate={{
             opacity: isCompact ? 1 : 0,
             height: isCompact ? 'auto' : 0,
-            marginBottom: isCompact ? 8 : 0,
+            marginBottom: isCompact ? 12 : 0,
           }}
           transition={{
             duration: 0.6,
@@ -79,12 +90,33 @@ export default function Navigation() {
             delay: isCompact ? 0.3 : 0,
           }}
         >
-          <Link
-            href="/"
-            className="font-[family-name:var(--font-body)] font-bold text-lg md:text-xl hover:opacity-60 transition-opacity duration-300 block"
-          >
-            DS
-          </Link>
+          {isHomePath ? (
+            <button
+              onClick={scrollToTop}
+              className="hover:opacity-60 transition-opacity duration-300 block"
+            >
+              <Image
+                src="/photos/logo_black.png"
+                alt="Dylan Selden"
+                width={2027}
+                height={1293}
+                className="w-auto h-6 md:h-8"
+              />
+            </button>
+          ) : (
+            <Link
+              href="/"
+              className="hover:opacity-60 transition-opacity duration-300 block"
+            >
+              <Image
+                src="/photos/logo_black.png"
+                alt="Dylan Selden"
+                width={2027}
+                height={1293}
+                className="w-auto h-6 md:h-8"
+              />
+            </Link>
+          )}
         </motion.div>
 
         {/* Nav Items */}

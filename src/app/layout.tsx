@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import HeroImage from "@/components/HeroImage";
+import NavBackground from "@/components/NavBackground";
 
 export const metadata: Metadata = {
   title: "Dylan Selden",
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased overflow-x-hidden">
+        <NavBackground />
         <Navigation />
         <HeroImage />
         {children}

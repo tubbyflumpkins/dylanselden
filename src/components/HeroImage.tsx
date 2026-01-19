@@ -1,16 +1,27 @@
 'use client';
 
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { useRef, useEffect } from 'react';
 
 export default function HeroImage() {
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Play video when returning to home page
+  useEffect(() => {
+    if (isHome && videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {
+        // Autoplay may be blocked, that's ok
+      });
+    }
+  }, [isHome]);
 
   return (
     <motion.div
-      className="fixed top-0 right-0 w-full md:w-3/5 h-screen bg-[#E8E6E1] z-0"
+      className="absolute top-0 right-0 w-full md:w-3/5 h-screen bg-[#FAF9F6] z-0 overflow-hidden"
       initial={false}
       animate={{
         opacity: isHome ? 1 : 0,
@@ -25,22 +36,14 @@ export default function HeroImage() {
         pointerEvents: isHome ? 'auto' : 'none',
       }}
     >
-      <Image
-        src="/photos/home_page_hero.jpg"
-        alt="Dylan Selden"
-        fill
-        className="object-cover"
-        priority
-        sizes="(max-width: 768px) 100vw, 60vw"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-        }}
+      <video
+        ref={videoRef}
+        src="/videos/hero.mp4"
+        autoPlay
+        muted
+        playsInline
+        className="w-full h-full object-cover"
       />
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <p className="text-[#2C2C2C]/20 text-lg font-[family-name:var(--font-body)]">
-          Add your photo to /public/photos/home_page_hero.jpg
-        </p>
-      </div>
     </motion.div>
   );
 }

@@ -8,17 +8,47 @@ import { useEffect, useState, useCallback } from 'react';
 import Lenis from 'lenis';
 
 const navItems = [
-  { href: '/about', label: 'About' },
-  { href: '/design', label: 'Design' },
-  { href: '/events', label: 'Events' },
-  { href: '/music', label: 'Music' },
-  { href: '/art', label: 'Art' },
+  { href: '/about', label: 'About', compactWidth: 42 },
+  { href: '/design', label: 'Design', compactWidth: 48 },
+  { href: '/events', label: 'Events', compactWidth: 46 },
+  { href: '/music', label: 'Music', compactWidth: 42 },
+  { href: '/art', label: 'Art', compactWidth: 26 },
 ];
+
+// Fixed dimensions for compact nav
+const COMPACT_LOGO_HEIGHT = 32;
+const COMPACT_LOGO_MARGIN = 12;
+const COMPACT_ITEM_HEIGHT = 24;
+const COMPACT_ITEM_GAP = 2;
+const HIGHLIGHT_PADDING_X = 10;
+const HIGHLIGHT_HEIGHT = 20;
+
+// Expanded nav dimensions
+const EXPANDED_ITEM_HEIGHT = 100;
+const EXPANDED_ITEM_GAP = 4;
 
 export default function Navigation() {
   const pathname = usePathname();
   const isHomePath = pathname === '/';
   const [scrolled, setScrolled] = useState(false);
+  const [expandedTop, setExpandedTop] = useState(300); // Default fallback
+
+  // Calculate expanded nav position (centered vertically)
+  useEffect(() => {
+    const calculateExpandedTop = () => {
+      const expandedNavHeight = navItems.length * EXPANDED_ITEM_HEIGHT + (navItems.length - 1) * EXPANDED_ITEM_GAP;
+      return (window.innerHeight - expandedNavHeight) / 2;
+    };
+
+    setExpandedTop(calculateExpandedTop());
+
+    const handleResize = () => {
+      setExpandedTop(calculateExpandedTop());
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Track scroll position on home page
   useEffect(() => {
@@ -32,13 +62,25 @@ export default function Navigation() {
       setScrolled(window.scrollY > threshold);
     };
 
-    handleScroll(); // Check initial position
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isHomePath]);
 
-  // Nav should be compact if: not on home OR scrolled down on home
   const isCompact = !isHomePath || scrolled;
+  const activeIndex = navItems.findIndex(item => item.href === pathname);
+
+  // Calculate the highlight position for compact state based on active index
+  const getCompactHighlightTop = () => {
+    if (activeIndex === -1) return 0;
+    const itemTop = COMPACT_LOGO_HEIGHT + COMPACT_LOGO_MARGIN + (activeIndex * (COMPACT_ITEM_HEIGHT + COMPACT_ITEM_GAP));
+    return itemTop + (COMPACT_ITEM_HEIGHT - HIGHLIGHT_HEIGHT) / 2;
+  };
+
+  const getCompactHighlightWidth = () => {
+    if (activeIndex === -1) return 60;
+    return navItems[activeIndex].compactWidth + (HIGHLIGHT_PADDING_X * 2);
+  };
 
   const scrollToTop = useCallback(() => {
     const lenis = (window as unknown as { lenis: Lenis }).lenis;
@@ -49,45 +91,48 @@ export default function Navigation() {
     }
   }, []);
 
+  const transitionConfig = {
+    duration: 1.1,
+    ease: [0.22, 1, 0.36, 1] as const,
+  };
+
   return (
     <motion.nav
       className="fixed z-50"
       initial={false}
       animate={{
-        top: isCompact ? 24 : '50%',
-        left: isCompact ? 24 : 64,
-        y: isCompact ? 0 : '-50%',
-      }}
-      transition={{
-        duration: 0.8,
-        ease: [0.32, 0.72, 0, 1],
-      }}
-      style={{
-        // Set initial position to avoid flash
-        top: isCompact ? 24 : '50%',
+        top: isCompact ? 24 : expandedTop,
         left: isCompact ? 24 : 64,
       }}
+      transition={transitionConfig}
     >
+      {/* Yellow highlight rectangle */}
       <motion.div
-        layout
-        className="flex flex-col"
-        transition={{
-          duration: 0.8,
-          ease: [0.32, 0.72, 0, 1],
+        className="absolute bg-[#FBF4B8] -z-10"
+        initial={false}
+        animate={{
+          top: isCompact ? getCompactHighlightTop() : -300,
+          left: isCompact ? -HIGHLIGHT_PADDING_X : -64,
+          width: isCompact ? getCompactHighlightWidth() : 500,
+          height: isCompact ? HIGHLIGHT_HEIGHT : 1200,
+          borderRadius: 0,
+          opacity: isCompact ? (activeIndex !== -1 ? 1 : 0) : 1,
         }}
-      >
+        transition={transitionConfig}
+      />
+
+      <div className="flex flex-col">
         {/* Logo - only shows when compact */}
         <motion.div
           initial={false}
           animate={{
             opacity: isCompact ? 1 : 0,
-            height: isCompact ? 'auto' : 0,
-            marginBottom: isCompact ? 12 : 0,
+            height: isCompact ? COMPACT_LOGO_HEIGHT : 0,
+            marginBottom: isCompact ? COMPACT_LOGO_MARGIN : 0,
           }}
           transition={{
-            duration: 0.6,
-            ease: [0.32, 0.72, 0, 1],
-            delay: isCompact ? 0.3 : 0,
+            ...transitionConfig,
+            delay: isCompact ? 0.2 : 0,
           }}
         >
           {isHomePath ? (
@@ -123,37 +168,32 @@ export default function Navigation() {
         {navItems.map((item, index) => (
           <motion.div
             key={item.href}
-            layout
-            layoutId={`nav-${item.href}`}
+            className="flex items-center overflow-hidden"
+            initial={false}
+            animate={{
+              height: isCompact ? COMPACT_ITEM_HEIGHT : EXPANDED_ITEM_HEIGHT,
+              marginBottom: isCompact ? COMPACT_ITEM_GAP : EXPANDED_ITEM_GAP,
+            }}
             transition={{
-              layout: {
-                duration: 0.8,
-                ease: [0.32, 0.72, 0, 1],
-              },
+              ...transitionConfig,
+              delay: index * 0.04,
             }}
           >
             <Link
               href={item.href}
-              className={`
-                font-[family-name:var(--font-body)] font-bold
-                block
-                hover:opacity-60 transition-opacity duration-300
-                ${pathname === item.href ? 'opacity-60' : 'opacity-100'}
-              `}
+              className="font-[family-name:var(--font-body)] font-bold block hover:opacity-60 transition-opacity duration-300"
             >
               <motion.span
-                layout
                 className="block"
+                style={{ willChange: 'font-size, line-height' }}
                 initial={false}
                 animate={{
-                  fontSize: isCompact ? 'clamp(0.875rem, 1vw, 1rem)' : 'clamp(3rem, 8vw, 8rem)',
-                  lineHeight: isCompact ? 1.5 : 1.1,
-                  marginBottom: isCompact ? '0.125rem' : '0.25rem',
+                  fontSize: isCompact ? '14px' : '80px',
+                  lineHeight: isCompact ? '21px' : '88px',
                 }}
                 transition={{
-                  duration: 0.8,
-                  ease: [0.32, 0.72, 0, 1],
-                  delay: index * 0.03,
+                  ...transitionConfig,
+                  delay: index * 0.04,
                 }}
               >
                 {item.label}
@@ -161,7 +201,7 @@ export default function Navigation() {
             </Link>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </motion.nav>
   );
 }

@@ -31,35 +31,43 @@ export default function Navigation() {
   const pathname = usePathname();
   const isHomePath = pathname === '/';
   const [scrolled, setScrolled] = useState(false);
-  const [expandedTop, setExpandedTop] = useState(300); // Default fallback
+  const [scrollY, setScrollY] = useState(0);
+  const [expandedTop, setExpandedTop] = useState(300);
+  const [expandedRectSize, setExpandedRectSize] = useState({ width: 500, height: 1200 });
 
-  // Calculate expanded nav position (centered vertically)
+  // Calculate expanded nav position and rectangle size
   useEffect(() => {
-    const calculateExpandedTop = () => {
+    const calculate = () => {
       const expandedNavHeight = navItems.length * EXPANDED_ITEM_HEIGHT + (navItems.length - 1) * EXPANDED_ITEM_GAP;
-      return (window.innerHeight - expandedNavHeight) / 2;
+      const navTop = (window.innerHeight - expandedNavHeight) / 2;
+
+      // Hero is 60% width on md+ (w-3/5), so yellow rectangle is 40%
+      const isMd = window.innerWidth >= 768;
+      const rectWidth = isMd ? window.innerWidth * 0.4 : window.innerWidth;
+      const rectHeight = window.innerHeight;
+
+      setExpandedTop(navTop);
+      setExpandedRectSize({ width: rectWidth, height: rectHeight });
     };
 
-    setExpandedTop(calculateExpandedTop());
-
-    const handleResize = () => {
-      setExpandedTop(calculateExpandedTop());
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    calculate();
+    window.addEventListener('resize', calculate);
+    return () => window.removeEventListener('resize', calculate);
   }, []);
 
   // Track scroll position on home page
   useEffect(() => {
     if (!isHomePath) {
       setScrolled(false);
+      setScrollY(0);
       return;
     }
 
     const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setScrollY(currentScrollY);
       const threshold = window.innerHeight * 0.3;
-      setScrolled(window.scrollY > threshold);
+      setScrolled(currentScrollY > threshold);
     };
 
     handleScroll();
@@ -106,17 +114,21 @@ export default function Navigation() {
       }}
       transition={transitionConfig}
     >
-      {/* Yellow highlight rectangle */}
+      {/* Yellow rectangle - fixed positioning, only animates on page change */}
       <motion.div
-        className="absolute bg-[#FBF4B8] -z-10"
+        className="fixed bg-[#FBF4B8] -z-10"
         initial={false}
         animate={{
-          top: isCompact ? getCompactHighlightTop() : -300,
-          left: isCompact ? -HIGHLIGHT_PADDING_X : -64,
-          width: isCompact ? getCompactHighlightWidth() : 500,
-          height: isCompact ? HIGHLIGHT_HEIGHT : 1200,
+          top: !isHomePath ? 24 + getCompactHighlightTop() : 0,
+          left: !isHomePath ? 24 - HIGHLIGHT_PADDING_X : 0,
+          width: !isHomePath ? getCompactHighlightWidth() : expandedRectSize.width,
+          height: !isHomePath ? HIGHLIGHT_HEIGHT : expandedRectSize.height,
           borderRadius: 0,
-          opacity: isCompact ? (activeIndex !== -1 ? 1 : 0) : 1,
+          opacity: !isHomePath ? (activeIndex !== -1 ? 1 : 0) : 1,
+        }}
+        style={{
+          // Scroll with page content on homepage (instant, not animated)
+          transform: isHomePath ? `translateY(${-scrollY}px)` : undefined,
         }}
         transition={transitionConfig}
       />

@@ -1,6 +1,6 @@
 export default function BlogSection() {
   return (
-    <section className="min-h-screen flex flex-col justify-center px-8 md:px-16 lg:px-24 py-16 md:py-24 bg-[#FAF9F6] relative z-10">
+    <section className="min-h-screen flex flex-col px-8 md:px-16 lg:px-24 pt-4 pb-16 md:pt-6 md:pb-24 bg-[#FAF9F6] relative z-10">
       <h2 className="font-[family-name:var(--font-body)] font-bold text-4xl md:text-5xl lg:text-6xl mb-12">
         Here&apos;s what I&apos;ve been up to...
       </h2>

@@ -65,13 +65,13 @@ export default function ShelfVisualizer() {
     offset: 6,
   });
 
-  const [rotation, setRotation] = useState(0);
+  const [rotation, setRotation] = useState(0.35);
 
-  // Animate rotation
+  // Animate rotation (slow speed)
   useEffect(() => {
     let animationId: number;
     const animate = () => {
-      setRotation((prev) => (prev + 0.003) % (Math.PI * 2));
+      setRotation((prev) => (prev - 0.0008 + Math.PI * 2) % (Math.PI * 2));
       animationId = requestAnimationFrame(animate);
     };
     animationId = requestAnimationFrame(animate);

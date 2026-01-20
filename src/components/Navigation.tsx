@@ -9,6 +9,7 @@ import Lenis from 'lenis';
 
 const navItems = [
   { href: '/about', label: 'About', compactWidth: 42 },
+  { href: '/work', label: 'Work', compactWidth: 38 },
   { href: '/design', label: 'Design', compactWidth: 48 },
   { href: '/events', label: 'Events', compactWidth: 46 },
   { href: '/music', label: 'Music', compactWidth: 42 },
@@ -22,6 +23,7 @@ const COMPACT_ITEM_HEIGHT = 24;
 const COMPACT_ITEM_GAP = 2;
 const HIGHLIGHT_PADDING_X = 10;
 const HIGHLIGHT_HEIGHT = 20;
+const LOGO_HIGHLIGHT_WIDTH = 70; // Logo width (~50px) + padding
 
 // Expanded nav dimensions
 const EXPANDED_ITEM_HEIGHT = 100;
@@ -76,6 +78,7 @@ export default function Navigation() {
   }, [isHomePath]);
 
   const isCompact = !isHomePath || scrolled;
+  const isScrolledOnHome = isHomePath && scrolled;
   const activeIndex = navItems.findIndex(item => item.href === pathname);
 
   // Calculate the highlight position for compact state based on active index
@@ -88,6 +91,11 @@ export default function Navigation() {
   const getCompactHighlightWidth = () => {
     if (activeIndex === -1) return 60;
     return navItems[activeIndex].compactWidth + (HIGHLIGHT_PADDING_X * 2);
+  };
+
+  // Logo highlight position (for when scrolled on homepage)
+  const getLogoHighlightTop = () => {
+    return (COMPACT_LOGO_HEIGHT - HIGHLIGHT_HEIGHT) / 2; // Center vertically on logo
   };
 
   const scrollToTop = useCallback(() => {
@@ -114,21 +122,38 @@ export default function Navigation() {
       }}
       transition={transitionConfig}
     >
-      {/* Yellow rectangle - fixed positioning, only animates on page change */}
+      {/* Yellow rectangle - three states: full background, logo highlight, nav item highlight */}
       <motion.div
         className="fixed bg-[#FBF4B8] -z-10"
         initial={false}
         animate={{
-          top: !isHomePath ? 24 + getCompactHighlightTop() : 0,
-          left: !isHomePath ? 24 - HIGHLIGHT_PADDING_X : 0,
-          width: !isHomePath ? getCompactHighlightWidth() : expandedRectSize.width,
-          height: !isHomePath ? HIGHLIGHT_HEIGHT : expandedRectSize.height,
+          // Subpage: nav item highlight | Homepage scrolled: logo highlight | Homepage top: full background
+          top: !isHomePath
+            ? 24 + getCompactHighlightTop()
+            : isScrolledOnHome
+              ? 24 + getLogoHighlightTop()
+              : 0,
+          left: !isHomePath
+            ? 24 - HIGHLIGHT_PADDING_X
+            : isScrolledOnHome
+              ? 24 - HIGHLIGHT_PADDING_X
+              : 0,
+          width: !isHomePath
+            ? getCompactHighlightWidth()
+            : isScrolledOnHome
+              ? LOGO_HIGHLIGHT_WIDTH
+              : expandedRectSize.width,
+          height: !isHomePath
+            ? HIGHLIGHT_HEIGHT
+            : isScrolledOnHome
+              ? HIGHLIGHT_HEIGHT
+              : expandedRectSize.height,
           borderRadius: 0,
           opacity: !isHomePath ? (activeIndex !== -1 ? 1 : 0) : 1,
         }}
         style={{
-          // Scroll with page content on homepage (instant, not animated)
-          transform: isHomePath ? `translateY(${-scrollY}px)` : undefined,
+          // Only scroll with page when on homepage AND not yet scrolled past threshold
+          transform: (isHomePath && !scrolled) ? `translateY(${-scrollY}px)` : undefined,
         }}
         transition={transitionConfig}
       />

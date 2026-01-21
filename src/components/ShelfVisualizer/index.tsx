@@ -244,7 +244,15 @@ export default function ShelfVisualizer() {
     const padding = 10;
     const w = maxX - minX + padding * 2;
     const h = maxY - minY + padding * 2;
-    return `${minX - padding} ${minY - padding} ${w} ${h}`;
+
+    // Scale down viewBox by 15% to make content appear larger
+    const scale = 1 / 1.15;
+    const scaledW = w * scale;
+    const scaledH = h * scale;
+    const offsetX = (w - scaledW) / 2;
+    const offsetY = (h - scaledH) / 2;
+
+    return `${minX - padding + offsetX} ${minY - padding + offsetY} ${scaledW} ${scaledH}`;
   }, [params]);
 
   // Generate projected geometry with current rotation
@@ -254,7 +262,7 @@ export default function ShelfVisualizer() {
   }, [params, rotation]);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-[2vw] lg:gap-[2vw] w-full max-w-[1400px]" style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}>
+    <div className="flex flex-col lg:flex-row gap-[2vw] lg:gap-[3.5vw] w-full max-w-[1600px]" style={{ fontSize: 'clamp(14px, 1.4vw, 24px)' }}>
       {/* Sliders Panel */}
       <motion.div
         className="flex flex-col gap-[1.2em] w-full lg:w-[18em] shrink-0"
@@ -324,7 +332,7 @@ export default function ShelfVisualizer() {
 
       {/* SVG Visualization */}
       <motion.div
-        className="flex-1 flex items-start justify-start h-[26em] max-h-[52vh]"
+        className="flex-1 flex items-start justify-start h-[32em] max-h-[60vh] -mt-[0.8em]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}

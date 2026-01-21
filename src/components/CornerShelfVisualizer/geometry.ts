@@ -143,6 +143,78 @@ function interpolate5Smooth(
 }
 
 /**
+ * Interpolate X coordinate with wall-aligned tangent at curve4 (X-axis wall)
+ * At t=0, blends ghost point to reduce X tangent component (more perpendicular to wall)
+ * wallAlign: 0 = pure mirror (45°), 1 = perpendicular (90°)
+ */
+function interpolate5SmoothX(
+  t: number,
+  v0: number, v1: number, v2: number, v3: number, v4: number,
+  wallAlign: number
+): number {
+  t = Math.max(0, Math.min(1, t));
+  const t1 = 1/6, t2 = 1/2, t3 = 5/6;
+
+  if (t <= t1) {
+    // First segment: at curve4 (X-axis wall)
+    // Blend v_before toward v1 to reduce X tangent (make it more perpendicular to wall)
+    const v_mirror = v0 + (v0 - v1);
+    const v_perpendicular = v1;  // Makes tangent_x = 0
+    const v_before = v_mirror + wallAlign * (v_perpendicular - v_mirror);
+    const localT = t / t1;
+    return catmullRom(v_before, v0, v1, v2, localT);
+  } else if (t <= t2) {
+    const localT = (t - t1) / (t2 - t1);
+    return catmullRom(v0, v1, v2, v3, localT);
+  } else if (t <= t3) {
+    const localT = (t - t2) / (t3 - t2);
+    return catmullRom(v1, v2, v3, v4, localT);
+  } else {
+    // Last segment: at curve0 (Y-axis wall)
+    // Keep mirror for X - we want the curve to arrive from +X direction
+    const v_after = v4 + (v4 - v3);
+    const localT = (t - t3) / (1 - t3);
+    return catmullRom(v2, v3, v4, v_after, localT);
+  }
+}
+
+/**
+ * Interpolate Y coordinate with wall-aligned tangent at curve0 (Y-axis wall)
+ * At t=1, blends ghost point to reduce Y tangent component (more perpendicular to wall)
+ * wallAlign: 0 = pure mirror (45°), 1 = perpendicular (90°)
+ */
+function interpolate5SmoothY(
+  t: number,
+  v0: number, v1: number, v2: number, v3: number, v4: number,
+  wallAlign: number
+): number {
+  t = Math.max(0, Math.min(1, t));
+  const t1 = 1/6, t2 = 1/2, t3 = 5/6;
+
+  if (t <= t1) {
+    // First segment: at curve4 (X-axis wall)
+    // Keep mirror for Y - we want strong Y tangent going into surface
+    const v_before = v0 + (v0 - v1);
+    const localT = t / t1;
+    return catmullRom(v_before, v0, v1, v2, localT);
+  } else if (t <= t2) {
+    const localT = (t - t1) / (t2 - t1);
+    return catmullRom(v0, v1, v2, v3, localT);
+  } else if (t <= t3) {
+    const localT = (t - t2) / (t3 - t2);
+    return catmullRom(v1, v2, v3, v4, localT);
+  } else {
+    // Last segment: at curve0 (Y-axis wall)
+    // Blend v_after toward v3 to reduce Y tangent (make it more perpendicular to wall)
+    const v_mirror = v4 + (v4 - v3);
+    const v_perpendicular = v3;  // Makes tangent_y = 0
+    const v_after = v_mirror + wallAlign * (v_perpendicular - v_mirror);
+    const localT = (t - t3) / (1 - t3);
+    return catmullRom(v2, v3, v4, v_after, localT);
+  }
+}
+
+/**
  * Get curve base positions (without sine offset)
  */
 function getCurveBasePositions(params: CornerShelfParams): { x: number; y: number }[] {
@@ -175,21 +247,26 @@ function getCornerFrontSurface(
   const sineValue = Math.sin((z / height) * Math.PI * 2);
 
   // 1. Calculate the base spine position using SMOOTH Catmull-Rom interpolation
-  //    This creates a truly smooth curve through the control points
-  const baseX = interpolate5Smooth(t,
+  //    Uses wall-aligned variants to reduce the "lip" at wall junctions
+  //    interpolate5SmoothX: reduces X tangent at curve4 (X-axis wall)
+  //    interpolate5SmoothY: reduces Y tangent at curve0 (Y-axis wall)
+  const wallAlign = params.wallAlign ?? 0.65;
+  const baseX = interpolate5SmoothX(t,
     width,                    // curve4 at t=0
     width - depth * 2/3,      // curve3 at t=1/6 (moved closer to edge)
     depth,                    // curve2 at t=1/2
     depth,                    // curve1 at t=5/6
-    0                         // curve0 at t=1
+    0,                        // curve0 at t=1
+    wallAlign
   );
 
-  const baseY = interpolate5Smooth(t,
+  const baseY = interpolate5SmoothY(t,
     0,                        // curve4 at t=0
     depth,                    // curve3 at t=1/6
     depth,                    // curve2 at t=1/2
     length - depth * 2/3,     // curve1 at t=5/6 (moved closer to edge)
-    length                    // curve0 at t=1
+    length,                   // curve0 at t=1
+    wallAlign
   );
 
   // 2. Interpolate the amplitude MULTIPLIERS using smooth interpolation

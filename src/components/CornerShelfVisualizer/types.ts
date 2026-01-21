@@ -19,4 +19,5 @@ export interface CornerShelfParams {
   columnCount: number;  // Number of vertical columns
   shelfOffset: number;  // Distance from top/bottom before shelf slicing begins
   columnOffset: number; // Distance from sides before column slicing begins
+  wallAlign: number;    // Wall alignment: 0 = 45° (mirror), 1 = 90° (perpendicular)
 }

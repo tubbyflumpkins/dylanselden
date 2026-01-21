@@ -67,6 +67,7 @@ export default function CornerShelfVisualizer() {
     columnCount: 2,   // Will animate to 5
     shelfOffset: 6,
     columnOffset: 6,
+    wallAlign: 0.65,  // Wall alignment: 0 = 45°, 1 = 90°
   });
 
 
@@ -346,6 +347,14 @@ export default function CornerShelfVisualizer() {
           min={0}
           max={360}
           onChange={(deg) => setRotation(deg * Math.PI / 180)}
+        />
+        <Slider
+          label="Wall Align"
+          value={params.wallAlign}
+          min={0}
+          max={1}
+          step={0.05}
+          onChange={updateParam('wallAlign')}
         />
       </motion.div>
 

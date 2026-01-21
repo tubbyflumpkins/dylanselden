@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import ShelfVisualizer from '@/components/ShelfVisualizer';
+import CornerShelfVisualizer from '@/components/CornerShelfVisualizer';
 
 export default function DesignPage() {
   return (
@@ -26,6 +27,34 @@ export default function DesignPage() {
         </motion.p>
 
         <ShelfVisualizer />
+
+        {/* Horizontal Divider */}
+        <motion.hr
+          className="my-16 md:my-24 border-t border-[#2C2C2C]/20"
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ duration: 0.8, delay: 0.7, ease: [0.32, 0.72, 0, 1] }}
+        />
+
+        <motion.h2
+          className="font-[family-name:var(--font-body)] font-bold text-3xl md:text-4xl lg:text-5xl mb-6 md:mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8, ease: [0.32, 0.72, 0, 1] }}
+        >
+          Corner Shelf Generator
+        </motion.h2>
+
+        <motion.p
+          className="text-lg md:text-xl leading-relaxed opacity-70 mb-6 max-w-2xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.9, ease: [0.32, 0.72, 0, 1] }}
+        >
+          Corner shelf generator. Creates shelves designed to fit into a 90-degree corner.
+        </motion.p>
+
+        <CornerShelfVisualizer />
       </div>
     </main>
   );

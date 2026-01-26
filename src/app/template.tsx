@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 
 export default function Template({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isHome = pathname === '/';
+  const isHome = pathname === '/home2';
 
   return (
     <motion.div

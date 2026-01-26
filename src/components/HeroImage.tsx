@@ -6,7 +6,7 @@ import { useRef, useEffect, useState } from 'react';
 
 export default function HeroImage() {
   const pathname = usePathname();
-  const isHome = pathname === '/';
+  const isHome = pathname === '/home2';
   const videoRef = useRef<HTMLVideoElement>(null);
   const [scrolledPast, setScrolledPast] = useState(false);
   const scrolledPastRef = useRef(false);

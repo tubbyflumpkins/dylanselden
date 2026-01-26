@@ -31,8 +31,8 @@ const EXPANDED_ITEM_GAP = 4;
 
 export default function Navigation() {
   const pathname = usePathname();
-  const isHomePath = pathname === '/';
-  const isHome2Path = pathname === '/home2';
+  const isHomePath = pathname === '/home2';
+  const isHome2Path = pathname === '/';
   const [scrolled, setScrolled] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [expandedTop, setExpandedTop] = useState(300);

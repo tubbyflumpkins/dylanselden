@@ -220,11 +220,11 @@ function interpolate5SmoothY(
 function getCurveBasePositions(params: CornerShelfParams): { x: number; y: number }[] {
   const { width, length, depth } = params;
   return [
-    { x: width, y: 0 },           // curve4: t=0
-    { x: width - depth, y: depth }, // curve3: t=1/6
-    { x: depth, y: depth },       // curve2: t=1/2
-    { x: depth, y: length - depth }, // curve1: t=5/6
-    { x: 0, y: length },          // curve0: t=1
+    { x: width, y: 0 },                                     // curve4 (Curve 5): t=0 - straight line on X-axis wall
+    { x: width - 3 * depth / 8, y: 3 * depth / 4 },         // curve3 (Curve 4): t=1/6 - sine along X axis
+    { x: depth + depth / 4, y: depth + depth / 4 },         // curve2 (Curve 3): t=1/2 - center 45° sine
+    { x: 3 * depth / 4, y: length - 3 * depth / 8 },        // curve1 (Curve 2): t=5/6 - sine along Y axis
+    { x: 0, y: length },                                    // curve0 (Curve 1): t=1 - straight line on Y-axis wall
   ];
 }
 
@@ -252,20 +252,20 @@ function getCornerFrontSurface(
   //    interpolate5SmoothY: reduces Y tangent at curve0 (Y-axis wall)
   const wallAlign = params.wallAlign ?? 0.65;
   const baseX = interpolate5SmoothX(t,
-    width,                    // curve4 at t=0
-    width - depth * 2/3,      // curve3 at t=1/6 (moved closer to edge)
-    depth,                    // curve2 at t=1/2
-    depth,                    // curve1 at t=5/6
-    0,                        // curve0 at t=1
+    width,                        // curve4 (Curve 5) at t=0
+    width - 3 * depth / 8,        // curve3 (Curve 4) at t=1/6
+    depth + depth / 4,            // curve2 (Curve 3) at t=1/2
+    3 * depth / 4,                // curve1 (Curve 2) at t=5/6
+    0,                            // curve0 (Curve 1) at t=1
     wallAlign
   );
 
   const baseY = interpolate5SmoothY(t,
-    0,                        // curve4 at t=0
-    depth,                    // curve3 at t=1/6
-    depth,                    // curve2 at t=1/2
-    length - depth * 2/3,     // curve1 at t=5/6 (moved closer to edge)
-    length,                   // curve0 at t=1
+    0,                            // curve4 (Curve 5) at t=0
+    3 * depth / 4,                // curve3 (Curve 4) at t=1/6
+    depth + depth / 4,            // curve2 (Curve 3) at t=1/2
+    length - 3 * depth / 8,       // curve1 (Curve 2) at t=5/6
+    length,                       // curve0 (Curve 1) at t=1
     wallAlign
   );
 
@@ -348,11 +348,11 @@ export function generateCornerShelfGeometry(params: CornerShelfParams): CornerSh
 
   // Generate the 5 control curves for visualization
   const curveData = [
-    { baseX: width, baseY: 0, dirX: 0, dirY: 1, amp: 0, inv: false },           // curve4
-    { baseX: width - depth * 2/3, baseY: depth, dirX: DIAG, dirY: DIAG, amp: params.amplitude, inv: false }, // curve3 (moved closer to edge)
-    { baseX: depth, baseY: depth, dirX: DIAG, dirY: DIAG, amp: params.amplitude, inv: true },  // curve2
-    { baseX: depth, baseY: length - depth * 2/3, dirX: DIAG, dirY: DIAG, amp: params.amplitude, inv: false }, // curve1 (moved closer to edge)
-    { baseX: 0, baseY: length, dirX: 1, dirY: 0, amp: 0, inv: false },          // curve0
+    { baseX: width, baseY: 0, dirX: 0, dirY: 1, amp: 0, inv: false },                                         // curve4 (Curve 5)
+    { baseX: width - 3 * depth / 8, baseY: 3 * depth / 4, dirX: DIAG, dirY: DIAG, amp: params.amplitude, inv: false },  // curve3 (Curve 4)
+    { baseX: depth + depth / 4, baseY: depth + depth / 4, dirX: DIAG, dirY: DIAG, amp: params.amplitude, inv: true },   // curve2 (Curve 3)
+    { baseX: 3 * depth / 4, baseY: length - 3 * depth / 8, dirX: DIAG, dirY: DIAG, amp: params.amplitude, inv: false }, // curve1 (Curve 2)
+    { baseX: 0, baseY: length, dirX: 1, dirY: 0, amp: 0, inv: false },                                        // curve0 (Curve 1)
   ];
 
   const curves = curveData.map(c =>

@@ -126,20 +126,20 @@ export default function ShelfVisualizer() {
       });
     };
 
-    // Sequence: (width + height) → columns → shelves → amplitude
+    // Sequence: amplitude → (width + height) → columns → shelves
     const runAnimation = async () => {
       await new Promise(resolve => setTimeout(resolve, 700)); // Initial delay
+      setAnimatingSlider('amplitude');
+      await animateValue('amplitude', 0, 2.5, 1500, 0);   // Amplitude: 0 → 2.5 (first)
       setAnimatingSlider('width');
       await Promise.all([
-        animateValue('width', 30, 80, 1800, 0),           // Width: 30 → 80
-        animateValue('height', 20, 50, 1800, 0),          // Height: 20 → 50 (simultaneous)
+        animateValue('width', 30, 80, 1800, 300),         // Width: 30 → 80
+        animateValue('height', 20, 50, 1800, 300),        // Height: 20 → 50 (simultaneous)
       ]);
       setAnimatingSlider('columnCount');
       await animateSteps('columnCount', 2, 5, 400, 300);  // Columns: 2 → 3 → 4 → 5
       setAnimatingSlider('shelfCount');
       await animateSteps('shelfCount', 2, 5, 400, 300);   // Shelves: 2 → 3 → 4 → 5
-      setAnimatingSlider('amplitude');
-      await animateValue('amplitude', 0, 2.5, 1500, 300); // Amplitude: 0 → 2.5 (last)
       setAnimatingSlider(null);
     };
 
@@ -220,7 +220,25 @@ export default function ShelfVisualizer() {
   }, [isDragging]);
 
   const updateParam = (key: keyof ShelfParams) => (value: number) => {
-    setParams((prev) => ({ ...prev, [key]: value }));
+    setParams((prev) => {
+      const newParams = { ...prev, [key]: value };
+
+      // When height changes, suggest a shelf count (height / 10)
+      if (key === 'height') {
+        const suggestedShelves = Math.round(value / 10);
+        // Clamp between min (2) and max (8)
+        newParams.shelfCount = Math.max(2, Math.min(8, suggestedShelves));
+      }
+
+      // When width changes, suggest a column count (width / 16)
+      if (key === 'width') {
+        const suggestedColumns = Math.round(value / 16);
+        // Clamp between min (2) and max (8)
+        newParams.columnCount = Math.max(2, Math.min(8, suggestedColumns));
+      }
+
+      return newParams;
+    });
   };
 
   // Calculate fixed viewBox using max height (3.93) and max width (5.5)

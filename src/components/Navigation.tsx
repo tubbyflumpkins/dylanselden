@@ -32,6 +32,7 @@ const EXPANDED_ITEM_GAP = 4;
 export default function Navigation() {
   const pathname = usePathname();
   const isHomePath = pathname === '/';
+  const isHome2Path = pathname === '/home2';
   const [scrolled, setScrolled] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [expandedTop, setExpandedTop] = useState(300);
@@ -79,6 +80,7 @@ export default function Navigation() {
 
   const isCompact = !isHomePath || scrolled;
   const isScrolledOnHome = isHomePath && scrolled;
+  const showLogoHighlight = isScrolledOnHome || isHome2Path; // Logo highlight for scrolled homepage OR /home2
   const activeIndex = navItems.findIndex(item => item.href === pathname);
 
   // Calculate the highlight position for compact state based on active index
@@ -127,29 +129,29 @@ export default function Navigation() {
         className="fixed bg-[#FBF4B8] -z-10"
         initial={false}
         animate={{
-          // Subpage: nav item highlight | Homepage scrolled: logo highlight | Homepage top: full background
-          top: !isHomePath
-            ? 24 + getCompactHighlightTop()
-            : isScrolledOnHome
-              ? 24 + getLogoHighlightTop()
+          // Logo highlight: scrolled homepage OR /home2 | Subpage: nav item highlight | Homepage top: full background
+          top: showLogoHighlight
+            ? 24 + getLogoHighlightTop()
+            : !isHomePath
+              ? 24 + getCompactHighlightTop()
               : 0,
-          left: !isHomePath
+          left: showLogoHighlight
             ? 24 - HIGHLIGHT_PADDING_X
-            : isScrolledOnHome
+            : !isHomePath
               ? 24 - HIGHLIGHT_PADDING_X
               : 0,
-          width: !isHomePath
-            ? getCompactHighlightWidth()
-            : isScrolledOnHome
-              ? LOGO_HIGHLIGHT_WIDTH
+          width: showLogoHighlight
+            ? LOGO_HIGHLIGHT_WIDTH
+            : !isHomePath
+              ? getCompactHighlightWidth()
               : expandedRectSize.width,
-          height: !isHomePath
+          height: showLogoHighlight
             ? HIGHLIGHT_HEIGHT
-            : isScrolledOnHome
+            : !isHomePath
               ? HIGHLIGHT_HEIGHT
               : expandedRectSize.height,
           borderRadius: 0,
-          opacity: !isHomePath ? (activeIndex !== -1 ? 1 : 0) : 1,
+          opacity: showLogoHighlight ? 1 : (!isHomePath ? (activeIndex !== -1 ? 1 : 0) : 1),
         }}
         style={{
           // Only scroll with page when on homepage AND not yet scrolled past threshold

@@ -9,7 +9,7 @@ export default function AboutPage() {
     initial: { opacity: 0, y: 20 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true, margin: '-50px' },
-    transition: { duration: 0.6, ease: [0.32, 0.72, 0, 1] },
+    transition: { duration: 0.6, ease: [0.32, 0.72, 0, 1] as const },
   };
 
   return (
@@ -21,7 +21,7 @@ export default function AboutPage() {
           className="font-[family-name:var(--font-body)] font-bold text-5xl md:text-6xl lg:text-7xl mb-16 md:mb-24"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5, ease: [0.32, 0.72, 0, 1] }}
+          transition={{ duration: 0.6, delay: 0.5, ease: [0.32, 0.72, 0, 1] as const }}
         >
           About
         </motion.h1>

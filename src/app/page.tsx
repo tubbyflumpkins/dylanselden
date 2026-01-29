@@ -22,7 +22,15 @@ export default function Home() {
           {...fadeIn}
         >
           <p className="text-lg md:text-xl leading-relaxed opacity-80">
-            <HighlightedText>I'm /Dylan/, founder of /Squarage Studio/. I build systems that generate custom designs. This is my Corner Shelf Designer:</HighlightedText>
+            <HighlightedText>I'm /Dylan/, founder of </HighlightedText>
+            <Link
+              href="https://squarage.com"
+              target="_blank"
+              className="bg-[#FBF4B8] px-1 font-bold hover:opacity-60 transition-opacity duration-300"
+            >
+              Squarage Studio
+            </Link>
+            <HighlightedText>. I build systems that generate custom designs. This is my Corner Shelf Designer:</HighlightedText>
           </p>
         </motion.div>
 

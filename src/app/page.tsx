@@ -48,9 +48,9 @@ export default function Home() {
         >
           <div className="flex-1">
             <p className="text-lg md:text-xl leading-relaxed opacity-80">
-              <HighlightedText>
-                With this tool, one design can adapt to any space. /Change is built in/, not treated like a problem. At{' '}
-              </HighlightedText>
+              With this tool, one design can adapt to any space.{' '}
+              <span className="font-bold text-[#FAF9F6] bg-[#4A9B4E] px-1 mx-[1px]">Change is built in</span>
+              , not treated like a problem. At{' '}
               <Link
                 href="https://squarage.com"
                 target="_blank"
@@ -58,9 +58,7 @@ export default function Home() {
               >
                 Squarage
               </Link>
-              <HighlightedText>
-                , we've used tools like this one to generate entire product lines and to do complex custom work.
-              </HighlightedText>
+              , we've used tools like this one to generate entire product lines and to do complex custom work.
             </p>
             <p className="text-lg md:text-xl leading-relaxed opacity-80 mt-4">
               <HighlightedText>

@@ -22,15 +22,7 @@ export default function Home() {
           {...fadeIn}
         >
           <p className="text-lg md:text-xl leading-relaxed opacity-80">
-            <HighlightedText>I'm /Dylan/, founder of </HighlightedText>
-            <Link
-              href="https://squarage.com"
-              target="_blank"
-              className="bg-[#FBF4B8] px-1 font-bold hover:opacity-60 transition-opacity duration-300"
-            >
-              Squarage Studio
-            </Link>
-            <HighlightedText>. I build systems that generate custom designs. This is my Corner Shelf Designer:</HighlightedText>
+            <HighlightedText>I'm /Dylan/, founder of /Squarage Studio/. I build systems that generate custom designs. This is my Corner Shelf Designer:</HighlightedText>
           </p>
         </motion.div>
 
@@ -57,7 +49,17 @@ export default function Home() {
           <div className="flex-1">
             <p className="text-lg md:text-xl leading-relaxed opacity-80">
               <HighlightedText>
-                With this tool, one design can adapt to any space. /Change is built in/, not treated like a problem. At /Squarage/, we've used tools like this one to generate entire product lines and to do complex custom work.
+                With this tool, one design can adapt to any space. /Change is built in/, not treated like a problem. At{' '}
+              </HighlightedText>
+              <Link
+                href="https://squarage.com"
+                target="_blank"
+                className="bg-[#FBF4B8] px-1 font-bold hover:opacity-60 transition-opacity duration-300"
+              >
+                Squarage
+              </Link>
+              <HighlightedText>
+                , we've used tools like this one to generate entire product lines and to do complex custom work.
               </HighlightedText>
             </p>
             <p className="text-lg md:text-xl leading-relaxed opacity-80 mt-4">
